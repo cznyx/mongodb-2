@@ -16,7 +16,6 @@ int main( int argc, const char **argv )
     }
     
     const char * ns = "termcloud.test";
-    
     /* Insert */
     mongo::BSONObjBuilder daily_user_bson;
     daily_user_bson.append("user", 15);
@@ -53,15 +52,36 @@ int main( int argc, const char **argv )
     
     /* update  */
     // 更新子文档中的单个数据项 
-    conn.update( ns , mongo::BSONObjBuilder().append( "stat_time" , "20131102" ).obj() , BSON("$set"<<BSON("users.daily.iol"<<23)));
+    conn.update( ns , mongo::BSONObjBuilder().append( "stat_time" , "20131102" ).obj() , BSON("$set"<<BSON("users.daily.iol"<<66)));
     
     /* 更新整个子文档 */
     // step.1 创建子文档并赋值 
     mongo::BSONObjBuilder total_term_bson;
-    total_term_bson.append("library", 5000);
-    total_term_bson.append("term", 50000000);
+    total_term_bson.append("library", 6000);
+    total_term_bson.append("term", 66660000);
     // step.2 更新子文档
     conn.update( ns , mongo::BSONObjBuilder().append( "stat_time" , "20131102" ).obj() , BSON("$set"<<BSON("terms.total"<<total_term_bson.obj())));
+    
+    /* 更新一个不存在的子文档 */
+    // step.1 构造新的子文档
+    mongo::BSONObjBuilder total_collect_bson;
+    total_collect_bson.append("library", 2015);
+    total_collect_bson.append("term", 58000);
+    total_collect_bson.append("library_time", 8060);
+    total_collect_bson.append("term_time", 400000);
+    
+    mongo::BSONObjBuilder daily_collect_bson;
+    daily_collect_bson.append("library_time", 2015);
+    daily_collect_bson.append("term_time", 58000);
+    daily_collect_bson.append("library_cancel_time", 860);
+    daily_collect_bson.append("term_cancel_time", 8000);
+    
+    mongo::BSONObjBuilder collecting_bson;
+    collecting_bson.append( "total" , total_collect_bson.obj() );
+    collecting_bson.append( "daily" , daily_collect_bson.obj() );
+    
+    // step.2 更新新的子文档
+    conn.update( ns , mongo::BSONObjBuilder().append( "stat_time" , "20131102" ).obj() , BSON("$set"<<BSON("collecting"<<collecting_bson.obj())));
     
     return 0;
 }
