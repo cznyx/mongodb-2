@@ -9,14 +9,14 @@ int main( int argc, const char **argv )
 	string errmsg;
     mongo::DBClientConnection conn;
 
-    if ( ! conn.connect("10.0.110.10:30000" , errmsg ) ) 
+    if ( ! conn.connect("10.0.110.13:27017" , errmsg ) ) 
     {
         cout << "couldn't connect : " << errmsg << endl;
         return EXIT_FAILURE;
     }
     
-    const char * ns = "termcloud.test";
-    /* Insert */
+    const char * ns = "termcloud.operation";
+    // Insert 
     mongo::BSONObjBuilder daily_user_bson;
     daily_user_bson.append("user", 15);
     daily_user_bson.append("register", 9);
@@ -49,12 +49,13 @@ int main( int argc, const char **argv )
     obj.append( "terms" , terms_bson.obj() );
     
     conn.insert( ns , obj.obj() );
+   
     
-    /* update  */
+    // update  
     // 更新子文档中的单个数据项 
     conn.update( ns , mongo::BSONObjBuilder().append( "stat_time" , "20131102" ).obj() , BSON("$set"<<BSON("users.daily.iol"<<66)));
-    
-    /* 更新整个子文档 */
+  
+    // 更新整个子文档 
     // step.1 创建子文档并赋值 
     mongo::BSONObjBuilder total_term_bson;
     total_term_bson.append("library", 6000);
@@ -62,8 +63,7 @@ int main( int argc, const char **argv )
     // step.2 更新子文档
     conn.update( ns , mongo::BSONObjBuilder().append( "stat_time" , "20131102" ).obj() , BSON("$set"<<BSON("terms.total"<<total_term_bson.obj())));
     
-    /* 更新一个不存在的子文档 */
-    // step.1 构造新的子文档
+    // 更新一个不存在的子文档
     mongo::BSONObjBuilder total_collect_bson;
     total_collect_bson.append("library", 2015);
     total_collect_bson.append("term", 58000);
@@ -80,8 +80,37 @@ int main( int argc, const char **argv )
     collecting_bson.append( "total" , total_collect_bson.obj() );
     collecting_bson.append( "daily" , daily_collect_bson.obj() );
     
-    // step.2 更新新的子文档
     conn.update( ns , mongo::BSONObjBuilder().append( "stat_time" , "20131102" ).obj() , BSON("$set"<<BSON("collecting"<<collecting_bson.obj())));
+   
+   	// query
+    // 查询一个嵌套子文档中的某个字段内容
+    auto_ptr<mongo::DBClientCursor> cursor = conn.query(ns, 
+        QUERY("stat_time"<<"20131114"));
+    if (!cursor.get()) 
+    {
+        cout << "query error" << endl;
+        return 0;
+    }
+	
+	int yestoday_total = 0;
+	
+    while ( cursor->more() ) 
+    {
+    	cout << "has element. " << endl;
+    	
+        mongo::BSONObj obj = cursor->next();
+        try
+        {
+            yestoday_total = ((obj.getObjectField("terms")).getObjectField("total"))["has_library_user"].Int();
+        }
+        catch(mongo::MsgAssertionException &e)
+        {
+            cout << "error : " << e.what() << endl;
+            continue;
+        }
+    }
+    
+    cout << "data = " << yestoday_total << endl;
     
     return 0;
 }
