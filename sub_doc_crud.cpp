@@ -6,7 +6,7 @@ using namespace std;
 
 int main( int argc, const char **argv ) 
 {
-	string errmsg;
+    string errmsg;
     mongo::DBClientConnection conn;
 
     if ( ! conn.connect("10.0.110.13:27017" , errmsg ) ) 
@@ -52,18 +52,18 @@ int main( int argc, const char **argv )
    
     
     // update  
-    // ¸üÐÂ×ÓÎÄµµÖÐµÄµ¥¸öÊý¾ÝÏî 
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½ï¿½ÐµÄµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
     conn.update( ns , mongo::BSONObjBuilder().append( "stat_time" , "20131102" ).obj() , BSON("$set"<<BSON("users.daily.iol"<<66)));
   
-    // ¸üÐÂÕû¸ö×ÓÎÄµµ 
-    // step.1 ´´½¨×ÓÎÄµµ²¢¸³Öµ 
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½ 
+    // step.1 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½ï¿½ï¿½ï¿½ï¿½Öµ 
     mongo::BSONObjBuilder total_term_bson;
     total_term_bson.append("library", 6000);
     total_term_bson.append("term", 66660000);
-    // step.2 ¸üÐÂ×ÓÎÄµµ
+    // step.2 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½
     conn.update( ns , mongo::BSONObjBuilder().append( "stat_time" , "20131102" ).obj() , BSON("$set"<<BSON("terms.total"<<total_term_bson.obj())));
     
-    // ¸üÐÂÒ»¸ö²»´æÔÚµÄ×ÓÎÄµµ
+    // ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½ï¿½Äµï¿½
     mongo::BSONObjBuilder total_collect_bson;
     total_collect_bson.append("library", 2015);
     total_collect_bson.append("term", 58000);
@@ -83,7 +83,7 @@ int main( int argc, const char **argv )
     conn.update( ns , mongo::BSONObjBuilder().append( "stat_time" , "20131102" ).obj() , BSON("$set"<<BSON("collecting"<<collecting_bson.obj())));
    
    	// query
-    // ²éÑ¯Ò»¸öÇ¶Ì××ÓÎÄµµÖÐµÄÄ³¸ö×Ö¶ÎÄÚÈÝ
+    // ï¿½ï¿½Ñ¯Ò»ï¿½ï¿½Ç¶ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½ï¿½Ðµï¿½Ä³ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½
     auto_ptr<mongo::DBClientCursor> cursor = conn.query(ns, 
         QUERY("stat_time"<<"20131114"));
     if (!cursor.get()) 
